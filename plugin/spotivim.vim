@@ -2,7 +2,7 @@
 " SpotiVim
 "
 " Author: Javier Gómez Fernández
-" Version: 0.0.2 (not stable)
+" Version: 0.0.3 (not stable)
 "
 " Copyright 2017 Javier Gómez Fernández
 "
@@ -19,16 +19,14 @@
 " You should have received a copy of the GNU General Public License
 " along with this program.  If not, see <http://www.gnu.org/licenses/>.
 "
-" TODO: Add documentation
-"
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-if (exists("g:spotivim_loaded") || system('uname') !~? 'Linux')
+if (exists("s:spotivim_loaded") || system('uname') !~? 'Linux')
+	" Until now the plug-in only works on Linux
 	finish
 endif
-let g:spotivim_loaded = 1
 
-function! spotivim#check_errors(output)
+function s:CheckErrors(output)
 	if match(a:output, "org.freedesktop.DBus.Error.ServiceUnknown") != -1
 		echoerr "Spotify doesn't seem to be opened!"
 		return 1
@@ -37,61 +35,61 @@ function! spotivim#check_errors(output)
 	endif
 endfunction
 
-function! spotivim#toggle()
+function SP_Toggle()
 	let l:output = system("dbus-send
 	\ --print-reply
 	\ --dest=org.mpris.MediaPlayer2.spotify
 	\ /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.PlayPause")
 
-	call spotivim#check_errors(l:output)
+	call s:CheckErrors(l:output)
 endfunction
 
-function! spotivim#pause()
+function SP_Pause()
 	let l:output = system("dbus-send
 	\ --print-reply
 	\ --dest=org.mpris.MediaPlayer2.spotify
 	\ /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Pause")
 
-	call spotivim#check_errors(l:output)
+	call s:CheckErrors(l:output)
 endfunction
 
-function! spotivim#play()
+function SP_Play()
 	let l:output = system("dbus-send
 	\ --print-reply
 	\ --dest=org.mpris.MediaPlayer2.spotify
 	\ org.mpris.MediaPlayer2.Player.Play")
 
-	call spotivim#check_errors(l:output)
+	call s:CheckErrors(l:output)
 endfunction
 
-function! spotivim#stop()
+function SP_Stop()
 	let l:output = system("dbus-send
 	\ --print-reply
 	\ --dest=org.mpris.MediaPlayer2.spotify
 	\ /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Stop")
 
-	call spotivim#check_errors(l:output)
+	call s:CheckErrors(l:output)
 endfunction
 
-function! spotivim#next()
+function SP_Next()
 	let l:output = system("dbus-send
 	\ --print-reply
 	\ --dest=org.mpris.MediaPlayer2.spotify
 	\ /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Next")
 
-	call spotivim#check_errors(l:output)
+	call s:CheckErrors(l:output)
 endfunction
 
-function! spotivim#previous()
+function SP_Previous()
 	let l:output = system("dbus-send
 	\ --print-reply
 	\ --dest=org.mpris.MediaPlayer2.spotify
 	\ /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Previous")
 
-	call spotivim#check_errors(l:output)
+	call s:CheckErrors(l:output)
 endfunction
 
-function! spotivim#get_status()
+function s:GetStatus()
 	let l:output = system("dbus-send
 	\ --print-reply
 	\ --dest=org.mpris.MediaPlayer2.spotify
@@ -99,7 +97,7 @@ function! spotivim#get_status()
 	\ string:org.mpris.MediaPlayer2.Player
 	\ string:PlaybackStatus")
 
-	if !spotivim#check_errors(l:output)
+	if !s:CheckErrors(l:output)
 		let l:matched = matchstr(l:output, "Paused\\|Playing")
 
 		if has("multi_byte")
@@ -122,7 +120,7 @@ function! spotivim#get_status()
 	endif
 endfunction
 
-function! spotivim#get_metadata()
+function s:GetMetadata()
 	let l:output = system("dbus-send
 	\ --print-reply
 	\ --dest=org.mpris.MediaPlayer2.spotify
@@ -134,7 +132,7 @@ function! spotivim#get_metadata()
 	" send multiple artists nor album artists. Thus, arrays always have only one
 	" item.
 
-	if !spotivim#check_errors(l:output)
+	if !s:CheckErrors(l:output)
 		let l:metadata = {}
 		let l:index = 0
 
@@ -174,14 +172,26 @@ function! spotivim#get_metadata()
 	endif
 endfunction
 
-function! spotivim#get_title_artist()
-	let l:metadata = spotivim#get_metadata()
+function SP_GetArtistTitle()
+	let l:metadata = s:GetMetadata()
+
+	if !has_key(l:metadata, 'title')
+		let l:metadata['title'] = 'Unknown'
+	endif
+
+	if !has_key(l:metadata, 'artist')
+		let l:metadata['artist'] = 'Unknown'
+	endif
 
 	return l:metadata['title'] . ' - ' . l:metadata['artist']
 endfunction
 
 " Commands definitions
-command! -nargs=0 SpToggle call spotivim#toggle()
-command! -nargs=0 SpNext call spotivim#next()
-command! -nargs=0 SpPrevious call spotivim#previous()
-command! -nargs=0 SpStatus echom spotivim#get_title_artist()
+command -nargs=0 SpToggle call SP_Toggle()
+command -nargs=0 SpNext call SP_Next()
+command -nargs=0 SpPrevious call SP_Previous()
+command -nargs=0 SpStatus echomsg SP_GetArtistTitle()
+
+let s:spotivim_loaded = 1
+
+" vim: noet:ts=2:sw=0

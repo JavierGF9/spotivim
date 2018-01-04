@@ -1,0 +1,58 @@
+*spotivim.txt*   Simple Spotify integration
+
+		       ____          __  _ _   ___      ~
+		      / __/__  ___  / /_(_) | / (_)_ _  ~
+		     _\ \/ _ \/ _ \/ __/ /| |/ / /  ' \ ~
+		    /___/ .__/\___/\__/_/ |___/_/_/_/_/ ~
+		       /_/                              ~
+
+==============================================================================
+CONTENTS                                                   *spotivim-contents*
+
+   1. Intro......................................|spotivim-intro|
+   2. Global variables...........................|spotivim-variables|
+   3. Global commands............................|spotivim-commands|
+   4. License....................................|spotivim-license|
+
+==============================================================================
+1. Intro                                                      *spotivim-intro*
+
+SpotiVim is a plug-in for Vim that provides simple Spotify integration
+using D-Bus. Right now, it uses the Linux command `dbus-send`, so the
+capabilities of the plug-in are limited by it.
+
+Currently, the following functionality is provided:
+    * Skip to previous and next song
+    * Toggle play/pause
+    * Get artist and title information
+
+The plug-in is still in development. Becouse of that, there will be more
+features in the future.
+
+==============================================================================
+2. Global variables                                       *spotivim-variables*
+
+s:spotivim_loaded
+    This variable is set when SpotiVim is firstly loaded. It avoids to
+    source the plug-in a second time.
+
+==============================================================================
+3. Global commands                                         *spotivim-commands*
+
+:SpToggle                                        *:SpToggle*
+    Toggles the status of the player to pause or play.
+
+:SpNext                                          *:SpNext*
+    Skip to the next song in the queue.
+
+:SpPrevious                                      *:SpPrevious*
+    Skip to the previous played song.
+
+:SpStatus                                        *:SpStatus*
+    Show the title of the song and the artist currently playing.
+
+==============================================================================
+4. License                                                  *spotivim-license*
+
+SpotiVim is released under GNU General Public License 3.
+You can read the license in https://www.gnu.org/licenses/gpl-3.0.txt
